@@ -1,5 +1,6 @@
+# mokrunka's version
 # -*- coding: utf-8 -*-
-#
+
 # wafw00f documentation build configuration file, created by
 # sphinx-quickstart on Thu May 15 20:04:22 2014.
 #
