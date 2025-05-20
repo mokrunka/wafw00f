@@ -57,9 +57,9 @@ class waftoolsengine:
             req = requests.get(self.target, proxies=self.proxies, headers=h, timeout=self.timeout,
                     allow_redirects=self.allowredir, params=params, verify=False)
             self.log.info('Request Succeeded')
-            self.log.debug('Headers: %s\n' % req.headers)
-            self.log.debug('Content: %s\n' % req.content)
+            self.log.debug(f'Headers: {req.headers}\n')
+            self.log.debug(f'Content: {req.content}\n')
             self.requestnumber += 1
             return req
         except requests.exceptions.RequestException as e:
-            self.log.error('Something went wrong %s' % (e.__str__()))
+            self.log.error(f'Something went wrong {(e.__str__())}')

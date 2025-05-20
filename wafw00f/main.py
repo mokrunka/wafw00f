@@ -137,8 +137,8 @@ class WAFW00F(waftoolsengine):
                     self.log.info('Server returned a different response when request didn\'t contain the User-Agent header.')
                     reason = reasons[4]
                     reason += '\r\n'
-                    reason += 'Normal response code is "%s",' % resp1.status_code
-                    reason += ' while the response code to a modified request is "%s"' % resp3.status_code
+                    reason += f'Normal response code is {resp1.status_code}'
+                    reason += f' while the response code to a modified request is {resp3.status_code}'
                     self.knowledge['generic']['reason'] = reason
                     self.knowledge['generic']['found'] = True
                     return True
@@ -149,8 +149,8 @@ class WAFW00F(waftoolsengine):
                 self.log.info('Server returned a different response when a XSS attack vector was tried.')
                 reason = reasons[2]
                 reason += '\r\n'
-                reason += 'Normal response code is "%s",' % resp1.status_code
-                reason += ' while the response code to cross-site scripting attack is "%s"' % resp2.status_code
+                reason += f'Normal response code is {resp1.status_code}'
+                reason += f' while the response code to cross-site scripting attack is {resp2.status_code}'
                 self.knowledge['generic']['reason'] = reason
                 self.knowledge['generic']['found'] = True
                 return xss_url
@@ -161,8 +161,8 @@ class WAFW00F(waftoolsengine):
                 self.log.info('Server returned a different response when a directory traversal was attempted.')
                 reason = reasons[2]
                 reason += '\r\n'
-                reason += 'Normal response code is "%s",' % resp1.status_code
-                reason += ' while the response code to a file inclusion attack is "%s"' % resp2.status_code
+                reason += f'Normal response code is {resp1.status_code}'
+                reason += f' while the response code to a file inclusion attack is {resp2.status_code}'
                 self.knowledge['generic']['reason'] = reason
                 self.knowledge['generic']['found'] = True
                 return lfi_url
@@ -173,8 +173,8 @@ class WAFW00F(waftoolsengine):
                 self.log.info('Server returned a different response when a SQLi was attempted.')
                 reason = reasons[2]
                 reason += '\r\n'
-                reason += 'Normal response code is "%s",' % resp1.status_code
-                reason += ' while the response code to a SQL injection attack is "%s"' % resp2.status_code
+                reason += f'Normal response code is {resp1.status_code}'
+                reason += f' while the response code to a SQL injection attack is {resp2.status_code}'
                 self.knowledge['generic']['reason'] = reason
                 self.knowledge['generic']['found'] = True
                 return sqli_url
@@ -191,8 +191,8 @@ class WAFW00F(waftoolsengine):
                 self.log.debug('Attack response: %s' % attackresponse_server)
                 self.log.debug('Normal response: %s' % normalserver)
                 reason = reasons[1]
-                reason += '\r\nThe server header for a normal response is "%s",' % normalserver
-                reason += ' while the server header a response to an attack is "%s",' % attackresponse_server
+                reason += f'\r\nThe server header for a normal response is {normalserver}'
+                reason += f' while the server header a response to an attack is {attackresponse_server}'
                 self.knowledge['generic']['reason'] = reason
                 self.knowledge['generic']['found'] = True
                 return True
@@ -281,7 +281,7 @@ class WAFW00F(waftoolsengine):
         except RequestBlocked:
             return detected, None
         for wafvendor in self.checklist:
-            self.log.info('Checking for %s' % wafvendor)
+            self.log.info(f'Checking for {wafvendor}')
             if self.wafdetections[wafvendor](self):
                 detected.append(wafvendor)
                 if not findall:
@@ -350,7 +350,7 @@ def enableStdOut():
 def getheaders(fn):
     headers = {}
     if not os.path.exists(fn):
-        logging.getLogger('wafw00f').critical('Headers file "%s" does not exist!' % fn)
+        logging.getLogger('wafw00f').critical(f'Headers file {fn} does not exist!')
         return
     with io.open(fn, 'r', encoding='utf-8') as f:
         for line in f.readlines():
@@ -439,16 +439,16 @@ def main():
         parser.error('No test target specified.')
     #check if input file is present
     if options.input:
-        log.debug('Loading file "%s"' % options.input)
+        log.debug(f'Loading file {options.input}')
         try:
             if options.input.endswith('.json'):
                 with open(options.input) as f:
                     try:
                         urls = json.loads(f.read())
                     except json.decoder.JSONDecodeError:
-                        log.critical('JSON file %s did not contain well-formed JSON', options.input)
+                        log.critical(f'JSON file {options.input} did not contain well-formed JSON',)
                         sys.exit(1)
-                log.info('Found: %s urls to check.' %(len(urls)))
+                log.info(f'Found: {len(urls)} urls to check.')
                 targets = [ item['url'] for item in urls ]
             elif options.input.endswith('.csv'):
                 columns = defaultdict(list)
@@ -462,21 +462,21 @@ def main():
                 with open(options.input) as f:
                     targets = [x for x in f.read().splitlines()]
         except FileNotFoundError:
-            log.error('File %s could not be read. No targets loaded.', options.input)
+            log.error(f'File {options.input} could not be read. No targets loaded.',)
             sys.exit(1)
     else:
         targets = args
     results = []
     for target in targets:
         if not target.startswith('http'):
-            log.info('The url %s should start with http:// or https:// .. fixing (might make this unusable)' % target)
+            log.info(f'The url {target} should start with http:// or https:// .. fixing (might make this unusable)')
             target = 'https://' + target
-        print('[*] Checking %s' % target)
+        print(f'[*] Checking {target}')
         pret = urllib.parse.urlparse(target)
         if pret is None:
-            log.critical('The url %s is not well formed' % target)
+            log.critical(f'The url {target} is not well formed')
             sys.exit(1)
-        log.info('starting wafw00f on %s' % target)
+        log.info(f'starting wafw00f on {target}')
         proxies = dict()
         if options.proxy:
             proxies = {
@@ -487,7 +487,7 @@ def main():
                     followredirect=options.followredirect, extraheaders=extraheaders,
                         proxies=proxies, timeout=options.timeout)
         if attacker.rq is None:
-            log.error('Site %s appears to be down' % pret.hostname)
+            log.error(f'Site {pret.hostname} appears to be down')
             continue
         if options.test:
             if options.test in attacker.wafdetections:
@@ -495,12 +495,12 @@ def main():
                 if waf:
                     print('[+] The site %s%s%s is behind %s%s%s WAF.' % (B, target, E, C, options.test, E))
                 else:
-                    print('[-] WAF %s was not detected on %s' % (options.test, target))
+                    print(f'[-] WAF {options.test} was not detected on {target}')
             else:
-                print('[-] WAF %s was not found in our list\r\nUse the --list option to see what is available' % options.test)
+                print(f'[-] WAF {options.test} was not found in our list\r\nUse the --list option to see what is available')
             return
         waf, xurl = attacker.identwaf(options.findall)
-        log.info('Identified WAF: %s' % waf)
+        log.info(f'Identified WAF: {waf}')
         if len(waf) > 0:
             for i in waf:
                 results.append(buildResultRecord(target, i, xurl))
@@ -509,17 +509,17 @@ def main():
             print('[+] Generic Detection results:')
             generic_url = attacker.genericdetect()
             if generic_url:
-                log.info('Generic Detection: %s' % attacker.knowledge['generic']['reason'])
-                print('[*] The site %s seems to be behind a WAF or some sort of security solution' % target)
-                print('[~] Reason: %s' % attacker.knowledge['generic']['reason'])
+                log.info(f'Generic Detection: {attacker.knowledge['generic']['reason']}')
+                print(f'[*] The site {target} seems to be behind a WAF or some sort of security solution')
+                print(f'[~] Reason: {attacker.knowledge['generic']['reason']}')
                 results.append(buildResultRecord(target, 'generic', generic_url))
             else:
                 print('[-] No WAF detected by the generic detection')
                 results.append(buildResultRecord(target, None, None))
-        print('[~] Number of requests: %s' % attacker.requestnumber)
+        print(f'[~] Number of requests: {attacker.requestnumber}')
     #print table of results
     if len(results) > 0:
-        log.info('Found: %s matches.' % (len(results)))
+        log.info(f'Found: {len(results)} matches.')
     if options.output:
         if options.output == '-':
             enableStdOut()
@@ -538,11 +538,11 @@ def main():
             else:
                 print(os.linesep.join(getTextResults(results)))
         elif options.output.endswith('.json'):
-            log.debug('Exporting data in json format to file: %s' % (options.output))
+            log.debug(f'Exporting data in json format to file: {options.output}')
             with open(options.output, 'w') as outfile:
                 json.dump(results, outfile, indent=2, sort_keys=True)
         elif options.output.endswith('.csv'):
-            log.debug('Exporting data in csv format to file: %s' % (options.output))
+            log.debug(f'Exporting data in csv format to file: {options.output}')
             with open(options.output, 'w') as outfile:
                 csvwriter = csv.writer(outfile, delimiter=',', quotechar='"',
                     quoting=csv.QUOTE_MINIMAL)
@@ -554,7 +554,7 @@ def main():
                         count += 1
                     csvwriter.writerow(result.values())
         else:
-            log.debug('Exporting data in text format to file: %s' % (options.output))
+            log.debug(f'Exporting data in text format to file: {options.output}')
             if options.format == 'json':
                 with open(options.output, 'w') as outfile:
                     json.dump(results, outfile, indent=2, sort_keys=True)
