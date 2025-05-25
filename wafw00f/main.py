@@ -509,9 +509,9 @@ def main():
             print('[+] Generic Detection results:')
             generic_url = attacker.genericdetect()
             if generic_url:
-                log.info(f'Generic Detection: {attacker.knowledge['generic']['reason']}')
+                log.info(f"Generic Detection: {attacker.knowledge['generic']['reason']}")
                 print(f'[*] The site {target} seems to be behind a WAF or some sort of security solution')
-                print(f'[~] Reason: {attacker.knowledge['generic']['reason']}')
+                print(f"[~] Reason: {attacker.knowledge['generic']['reason']}")
                 results.append(buildResultRecord(target, 'generic', generic_url))
             else:
                 print('[-] No WAF detected by the generic detection')
